@@ -1,0 +1,13 @@
+//
+//  TiUIView+GestureRecognizer.h
+//  gesturerecognizer
+//
+//  Created by KATAOKA,Atsushi on 11/09/24.
+//  Copyright 2011年 __MyCompanyName__. All rights reserved.
+//
+#import "TiUIView.h"
+
+@interface TiUIView (TiUIView_GestureRecognizer)
+- (void)setRotateGesture_:(id)value;
+- (void)setPinchGesture_:(id)value;
+@end

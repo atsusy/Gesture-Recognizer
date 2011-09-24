@@ -1,0 +1,17 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.0
+description: Support Rotate and Pinch-in/out gesture to View.
+author: KATAOKA,Atsushi
+license: MIT License
+copyright: Copyright (c) 2011 by MARSHMALLOW MACHINE
+
+
+# these should not be edited
+name: gesturerecognizer
+moduleid: jp.msmc.gesturerecognizer
+guid: feebd8e2-d709-4a4d-afb4-2c996535b0bb
+platform: iphone
+minsdk: 1.7.2
