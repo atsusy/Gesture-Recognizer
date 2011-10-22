@@ -10,4 +10,5 @@
 @interface TiUIView (TiUIView_GestureRecognizer)
 - (void)setRotateGesture_:(id)value;
 - (void)setPinchGesture_:(id)value;
+- (void)setPanGesture_:(id)value;
 @end

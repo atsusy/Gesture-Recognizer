@@ -101,4 +101,53 @@
         }
     }        
 }
+
+- (void)handlePanGesture:(UIPanGestureRecognizer *)sender
+{
+    CGPoint translation = [sender translationInView:self.window];
+    CGPoint velocity = [sender velocityInView:self.window];
+    
+    NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:
+                          [[[TiPoint alloc] initWithPoint:translation] autorelease], @"translation",
+                          [[[TiPoint alloc] initWithPoint:velocity] autorelease], @"velocity", nil];
+    if([self.proxy _hasListeners:@"pan"]){
+        [self.proxy fireEvent:@"pan" withObject:args];
+    }
+    
+    if(sender.state == UIGestureRecognizerStateEnded && 
+       [self.proxy _hasListeners:@"panend"]){
+        [self.proxy fireEvent:@"panend"];
+    }
+}
+
+- (void)setPanGesture_:(id)value
+{
+    ENSURE_SINGLE_ARG(value, NSNumber);
+    BOOL value_ = [value boolValue];
+    
+    if(value_){
+        for(UIGestureRecognizer *gesure in self.gestureRecognizers){
+            if([gesure isKindOfClass:[UIPanGestureRecognizer class]]){
+                return;
+            }
+        }
+        
+        UIPanGestureRecognizer *panGesture =[[UIPanGestureRecognizer alloc] initWithTarget:self
+                                                                                    action:@selector(handlePanGesture:)];
+        [self addGestureRecognizer:panGesture];
+        
+        [panGesture release];
+    } else{
+        UIGestureRecognizer *panGesture = nil;
+        for(UIGestureRecognizer *gesure in self.gestureRecognizers){
+            if([gesure isKindOfClass:[UIPanGestureRecognizer class]]){
+                panGesture = gesure;
+                break;
+            }
+        }
+        if(panGesture){
+            [self removeGestureRecognizer:panGesture];
+        }
+    }        
+}
 @end

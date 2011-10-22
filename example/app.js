@@ -6,12 +6,19 @@
 
 // open a single window
 var window = Ti.UI.createWindow({
+	orientationModes:[
+			  Ti.UI.LANDSCAPE_LEFT,
+			  Ti.UI.LANDSCAPE_RIGHT,
+			  Ti.UI.PORTRAIT,
+			  Ti.UI.UPSIDE_PORTRAIT
+			 ]
 });
 
 var image = Ti.UI.createImageView({
-    image:"lena_std.jpg",
+    image:"toby.jpg",
     rotateGesture:true,
-    pinchGesture:true
+    pinchGesture:true,
+    panGesture:true
 });
 var lastAngle = 0.0;
 var currentAngle = 0.0;
@@ -19,11 +26,24 @@ var currentAngle = 0.0;
 var lastScale = 1.0;
 var currentScale = 1.0;
 
+var currentTranslation = {x:0.0, y:0.0};
+var lastTranslation = {x:0.0, y:0.0};
+
+function updateTransform(image)
+{
+    var transform = Ti.UI.create2DMatrix()
+		.scale(lastScale*currentScale)
+        .rotate(lastAngle+currentAngle);
+        
+    transform.tx = lastTranslation.x+currentTranslation.x;
+    transform.ty = lastTranslation.y+currentTranslation.y;
+
+	image.transform = transform;
+};
+
 image.addEventListener('rotate', function(e){
     currentAngle = e.rotation / Math.PI * 180.0;
-    image.transform = Ti.UI.create2DMatrix()
-        .scale(lastScale*currentScale)
-        .rotate(lastAngle+currentAngle);
+	updateTransform(image);
 });
 
 image.addEventListener('rotateend', function(e){
@@ -33,14 +53,25 @@ image.addEventListener('rotateend', function(e){
 
 image.addEventListener('pinch', function(e){
     currentScale = e.scale;
-    image.transform = Ti.UI.create2DMatrix()
-        .scale(lastScale*currentScale)
-        .rotate(lastAngle+currentAngle);
+	updateTransform(image);
 });
 
 image.addEventListener('pinchend', function(e){
     lastScale = (lastScale * currentScale);
     currentScale = 1.0;
+});
+
+image.addEventListener('pan', function(e){
+	currentTranslation.x = e.translation.x;
+	currentTranslation.y = e.translation.y;
+	updateTransform(image);
+});
+
+image.addEventListener('panend', function(e){
+    lastTranslation.x = lastTranslation.x + currentTranslation.x;
+    lastTranslation.y = lastTranslation.y + currentTranslation.y;
+    currentTranslation.x = 0.0;
+    currentTranslation.y = 0.0;
 });
 
 window.add(image);
