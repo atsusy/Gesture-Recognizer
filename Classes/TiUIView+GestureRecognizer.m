@@ -104,8 +104,8 @@
 
 - (void)handlePanGesture:(UIPanGestureRecognizer *)sender
 {
-    CGPoint translation = [sender translationInView:self.window];
-    CGPoint velocity = [sender velocityInView:self.window];
+    CGPoint translation = [sender translationInView:self.superview];
+    CGPoint velocity = [sender velocityInView:self.superview];
     
     NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:
                           [[[TiPoint alloc] initWithPoint:translation] autorelease], @"translation",
