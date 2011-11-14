@@ -53,12 +53,13 @@ image.addEventListener('rotateend', function(e){
 
 image.addEventListener('pinch', function(e){
     currentScale = e.scale;
-	updateTransform(image);
+    updateTransform(image);
 });
 
 image.addEventListener('pinchend', function(e){
     lastScale = (lastScale * currentScale);
     currentScale = 1.0;
+    Ti.API.debug("pinchend event occurred.");
 });
 
 image.addEventListener('pan', function(e){

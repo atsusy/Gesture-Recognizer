@@ -8,7 +8,39 @@
 #import "TiUtils.h"
 #import "TiUIView+GestureRecognizer.h"
 
+#define RECOGNIZE_SIMULTANEOUSLY (1 << 16)
+
 @implementation TiUIView (TiUIView_GestureRecognizer)
+
+- (void)setRecognizeSimultaneously_:(id)value
+{
+    ENSURE_SINGLE_ARG(value, NSNumber);
+    BOOL value_ = [value boolValue];
+    
+    if(value_)
+    {
+        NSLog(@"[DEBUG] RecognizeSimultaneously to true.");
+        for(UIGestureRecognizer *gesture in self.gestureRecognizers)
+        {
+            gesture.delegate = self;
+        }
+        self.tag |= RECOGNIZE_SIMULTANEOUSLY;
+    }
+    else
+    {
+        NSLog(@"[DEBUG] RecognizeSimultaneously to false.");
+        for(UIGestureRecognizer *gesture in self.gestureRecognizers)
+        {
+            gesture.delegate = nil;
+        }
+        self.tag &= ~RECOGNIZE_SIMULTANEOUSLY;
+    }
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return YES;
+}
 
 - (void)handleRotationGesture:(UIRotationGestureRecognizer *)sender
 {
@@ -41,6 +73,11 @@
                                                                                                    action:@selector(handleRotationGesture:)];
         [self addGestureRecognizer:rotationGesture];
         
+        if(self.tag & RECOGNIZE_SIMULTANEOUSLY)
+        {
+            rotationGesture.delegate = self;
+        }
+        
         [rotationGesture release];
     } else{
         UIGestureRecognizer *rotationGesture = nil;
@@ -50,6 +87,9 @@
                 break;
             }
         }
+        
+        rotationGesture.delegate = nil;
+        
         if(rotationGesture){
             [self removeGestureRecognizer:rotationGesture];
         }
@@ -87,6 +127,10 @@
                                                                                           action:@selector(handlePinchGesture:)];
         [self addGestureRecognizer:pinchGesture];
         
+        if(self.tag & RECOGNIZE_SIMULTANEOUSLY)
+        {
+            pinchGesture.delegate = self;
+        }
         [pinchGesture release];
     } else{
         UIGestureRecognizer *pinchGesture = nil;
@@ -96,6 +140,9 @@
                 break;
             }
         }
+        
+        pinchGesture.delegate = self;
+        
         if(pinchGesture){
             [self removeGestureRecognizer:pinchGesture];
         }
@@ -136,6 +183,10 @@
                                                                                     action:@selector(handlePanGesture:)];
         [self addGestureRecognizer:panGesture];
         
+        if(self.tag & RECOGNIZE_SIMULTANEOUSLY)
+        {
+            panGesture.delegate = self;
+        }
         [panGesture release];
     } else{
         UIGestureRecognizer *panGesture = nil;
@@ -145,6 +196,9 @@
                 break;
             }
         }
+        
+        panGesture.delegate = nil;
+        
         if(panGesture){
             [self removeGestureRecognizer:panGesture];
         }

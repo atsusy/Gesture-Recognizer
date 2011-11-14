@@ -8,6 +8,7 @@
 #import "TiUIView.h"
 
 @interface TiUIView (TiUIView_GestureRecognizer)
+- (void)setRecognizeSimultaneously_:(id)value;
 - (void)setRotateGesture_:(id)value;
 - (void)setPinchGesture_:(id)value;
 - (void)setPanGesture_:(id)value;
