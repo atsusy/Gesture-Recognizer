@@ -18,7 +18,7 @@ var image = Ti.UI.createImageView({
     image:"toby.jpg",
     recognizeSimultaneously:"pinching,rotate",
     rotateGesture:true,
-    pinchGesture:true,
+    pinchingGesture:true,
     panGesture:true
 });
 var lastAngle = 0.0;

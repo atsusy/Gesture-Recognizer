@@ -147,11 +147,11 @@
     
     if(sender.state == UIGestureRecognizerStateEnded && 
        [self.proxy _hasListeners:@"pinchingend"]){
-        [self.proxy fireEvent:@"pincingend"];
+        [self.proxy fireEvent:@"pinchingend"];
     }
 }
 
-- (void)setPinchGesture_:(id)value
+- (void)setPinchingGesture_:(id)value
 {
     ENSURE_SINGLE_ARG(value, NSNumber);
     BOOL value_ = [value boolValue];
@@ -163,7 +163,6 @@
             }
         }
         
-    
         
         UIPinchGestureRecognizer *pinchGesture =[[UIPinchGestureRecognizer alloc] initWithTarget:self
                                                                                           action:@selector(handlePinchGesture:)];
