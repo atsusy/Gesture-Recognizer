@@ -16,8 +16,9 @@ var window = Ti.UI.createWindow({
 
 var image = Ti.UI.createImageView({
     image:"toby.jpg",
+    recognizeSimultaneously:"pinching,rotate",
     rotateGesture:true,
-    pinchGesture:true,
+    pinchingGesture:true,
     panGesture:true
 });
 var lastAngle = 0.0;
@@ -51,15 +52,14 @@ image.addEventListener('rotateend', function(e){
     currentAngle = 0.0;
 });
 
-image.addEventListener('pinch', function(e){
+image.addEventListener('pinching', function(e){
     currentScale = e.scale;
     updateTransform(image);
 });
 
-image.addEventListener('pinchend', function(e){
+image.addEventListener('pinchingend', function(e){
     lastScale = (lastScale * currentScale);
     currentScale = 1.0;
-    Ti.API.debug("pinchend event occurred.");
 });
 
 image.addEventListener('pan', function(e){

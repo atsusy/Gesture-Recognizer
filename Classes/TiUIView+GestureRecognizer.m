@@ -3,43 +3,83 @@
 //  gesturerecognizer
 //
 //  Created by KATAOKA,Atsushi on 11/09/24.
-//  Copyright 2011年 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 MARSHMALLOW MACHINE. All rights reserved.
 //
 #import "TiUtils.h"
 #import "TiUIView+GestureRecognizer.h"
 
-#define RECOGNIZE_SIMULTANEOUSLY (1 << 16)
+@interface JPMSMCGESTURERECOGNIZER_FIXCATEGORYBUG_TIUIVIEW @end
+@implementation JPMSMCGESTURERECOGNIZER_FIXCATEGORYBUG_TIUIVIEW @end
+
+#define RECOGNIZE_SIMULTANEOUSLY_ROTATE (1 << 16)
+#define RECOGNIZE_SIMULTANEOUSLY_PAN    (1 << 15)
+#define RECOGNIZE_SIMULTANEOUSLY_PINCH  (1 << 14)
+#define RECOGNIZE_SIMULTANEOUSLY_ALL    (RECOGNIZE_SIMULTANEOUSLY_ROTATE|RECOGNIZE_SIMULTANEOUSLY_PAN|RECOGNIZE_SIMULTANEOUSLY_PINCH)
 
 @implementation TiUIView (TiUIView_GestureRecognizer)
 
 - (void)setRecognizeSimultaneously_:(id)value
 {
-    ENSURE_SINGLE_ARG(value, NSNumber);
-    BOOL value_ = [value boolValue];
-    
-    if(value_)
-    {
-        NSLog(@"[DEBUG] RecognizeSimultaneously to true.");
-        for(UIGestureRecognizer *gesture in self.gestureRecognizers)
+    if([value isKindOfClass:[NSNumber class]]){
+        BOOL value_ = [value boolValue];
+        
+        if(value_)
         {
-            gesture.delegate = self;
+            NSLog(@"[DEBUG] RecognizeSimultaneously to true.");
+            for(UIGestureRecognizer *gesture in self.gestureRecognizers)
+            {
+                gesture.delegate = self;
+            }
+            self.tag |= RECOGNIZE_SIMULTANEOUSLY_ALL;
         }
-        self.tag |= RECOGNIZE_SIMULTANEOUSLY;
-    }
-    else
-    {
-        NSLog(@"[DEBUG] RecognizeSimultaneously to false.");
-        for(UIGestureRecognizer *gesture in self.gestureRecognizers)
+        else
         {
-            gesture.delegate = nil;
+            NSLog(@"[DEBUG] RecognizeSimultaneously to false.");
+            for(UIGestureRecognizer *gesture in self.gestureRecognizers)
+            {
+                gesture.delegate = nil;
+            }
+            self.tag &= ~RECOGNIZE_SIMULTANEOUSLY_ALL;
+        }        
+    }else if([value isKindOfClass:[NSString class]]){
+        self.tag &= ~RECOGNIZE_SIMULTANEOUSLY_ALL;
+        NSArray *components = [value componentsSeparatedByString:@","];
+        for(NSString *component in components){
+            if([component isEqualToString:@"pinching"]){
+                self.tag |= RECOGNIZE_SIMULTANEOUSLY_PINCH;
+                NSLog(@"[DEBUG] RecognizeSimultaneously to pinch.");
+            }
+            if([component isEqualToString:@"pan"]){
+                self.tag |= RECOGNIZE_SIMULTANEOUSLY_PAN;
+                NSLog(@"[DEBUG] RecognizeSimultaneously to pan.");
+            }
+            if([component isEqualToString:@"rotate"]){
+                self.tag |= RECOGNIZE_SIMULTANEOUSLY_ROTATE;
+                NSLog(@"[DEBUG] RecognizeSimultaneously to rotate.");
+            }
         }
-        self.tag &= ~RECOGNIZE_SIMULTANEOUSLY;
+    }else{
+        NSLog(@"[WARN] recognizeSimultaneously property is invalid.");
     }
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    return YES;
+    BOOL result = NO;
+    if([otherGestureRecognizer isKindOfClass:[UIPinchGestureRecognizer class]]){
+        result = (self.tag & RECOGNIZE_SIMULTANEOUSLY_PINCH) ? YES : NO;
+    }
+    
+    if([otherGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]){
+        result = (self.tag & RECOGNIZE_SIMULTANEOUSLY_PAN) ? YES : NO;        
+    }
+
+    if([otherGestureRecognizer isKindOfClass:[UIRotationGestureRecognizer class]]){
+        result = (self.tag & RECOGNIZE_SIMULTANEOUSLY_ROTATE) ? YES : NO;
+    }
+    
+    //NSLog(@"[DEBUG] recognizer:%@ other:%@ result:%d tag:%d", [gestureRecognizer class], [otherGestureRecognizer class], result, self.tag);
+    return result;
 }
 
 - (void)handleRotationGesture:(UIRotationGestureRecognizer *)sender
@@ -73,7 +113,7 @@
                                                                                                    action:@selector(handleRotationGesture:)];
         [self addGestureRecognizer:rotationGesture];
         
-        if(self.tag & RECOGNIZE_SIMULTANEOUSLY)
+        if(self.tag & RECOGNIZE_SIMULTANEOUSLY_ROTATE)
         {
             rotationGesture.delegate = self;
         }
@@ -101,17 +141,17 @@
     NSDictionary *args = [NSDictionary dictionaryWithObjectsAndKeys:
                           [NSNumber numberWithFloat:[sender scale]], @"scale",
                           [NSNumber numberWithFloat:[sender velocity]], @"velocity", nil];
-    if([self.proxy _hasListeners:@"pinch"]){
-        [self.proxy fireEvent:@"pinch" withObject:args];
+    if([self.proxy _hasListeners:@"pinching"]){
+        [self.proxy fireEvent:@"pinching" withObject:args];
     }
     
     if(sender.state == UIGestureRecognizerStateEnded && 
-       [self.proxy _hasListeners:@"pinchend"]){
-        [self.proxy fireEvent:@"pinchend"];
+       [self.proxy _hasListeners:@"pinchingend"]){
+        [self.proxy fireEvent:@"pinchingend"];
     }
 }
 
-- (void)setPinchGesture_:(id)value
+- (void)setPinchingGesture_:(id)value
 {
     ENSURE_SINGLE_ARG(value, NSNumber);
     BOOL value_ = [value boolValue];
@@ -123,11 +163,12 @@
             }
         }
         
+        
         UIPinchGestureRecognizer *pinchGesture =[[UIPinchGestureRecognizer alloc] initWithTarget:self
                                                                                           action:@selector(handlePinchGesture:)];
         [self addGestureRecognizer:pinchGesture];
         
-        if(self.tag & RECOGNIZE_SIMULTANEOUSLY)
+        if(self.tag & RECOGNIZE_SIMULTANEOUSLY_PINCH)
         {
             pinchGesture.delegate = self;
         }
@@ -183,7 +224,7 @@
                                                                                     action:@selector(handlePanGesture:)];
         [self addGestureRecognizer:panGesture];
         
-        if(self.tag & RECOGNIZE_SIMULTANEOUSLY)
+        if(self.tag & RECOGNIZE_SIMULTANEOUSLY_PAN)
         {
             panGesture.delegate = self;
         }
