@@ -3,13 +3,13 @@
 //  gesturerecognizer
 //
 //  Created by KATAOKA,Atsushi on 11/09/24.
-//  Copyright 2011年 __MyCompanyName__. All rights reserved.
+//  Copyright 2011年 MARSHMALLOW MACHINE. All rights reserved.
 //
 #import "TiUIView.h"
 
-@interface TiUIView (TiUIView_GestureRecognizer)
+@interface TiUIView (TiUIView_GestureRecognizer) <UIGestureRecognizerDelegate>
 - (void)setRecognizeSimultaneously_:(id)value;
 - (void)setRotateGesture_:(id)value;
-- (void)setPinchGesture_:(id)value;
+- (void)setPinchingGesture_:(id)value;
 - (void)setPanGesture_:(id)value;
 @end
